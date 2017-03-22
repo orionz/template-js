@@ -1,4 +1,5 @@
 
+/*
 const action = (state = [], action) => {
   switch (action.type) {
     case 'LOG':
@@ -9,3 +10,4 @@ const action = (state = [], action) => {
 }
 
 export default action
+*/

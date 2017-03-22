@@ -14,7 +14,7 @@ class Foo extends React.Component {
   }
 }
 
-let Store = Redux.createStore(reducer);
+//let Store = Redux.createStore(reducer);
 let content = "react initializing...";
 let mount = document.getElementById("mount");
 console.log("Mount node", mount);
