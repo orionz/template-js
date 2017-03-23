@@ -7,11 +7,11 @@ class Terminal extends React.Component {
   }
 
   log(msg) {
-    this.setState({...this.state, content: this.state.content + "\n" + msg})
+    this.setState({...this.state, content: [...this.state.content, msg]})
   }
 
   render() {
-    return (<pre className="foo">{this.state.content}</pre>);
+    return (<pre className="foo">{this.state.content.join("\n")}</pre>);
   }
 }
 
