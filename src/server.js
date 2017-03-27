@@ -133,15 +133,14 @@ function dispatch_message(to,from,message) {
 }
 
 function announce(user) {
-  console.log("ANNOUNCE: ", Object.keys(LONGPOLL).length);
-  for (var key in LONGPOLL) {
-    if (LONGPOLL[key].group_id == user.group_id) {
-      LONGPOLL[key]();
-      delete LONGPOLL[key];
+  USERS[user.group_id].forEach((n) => {
+    if (LONGPOLL[n.session_id]) {
+      console.log("ANNOUNCE: ", n.session_id);
+      LONGPOLL[n.session_id]();
+      delete LONGPOLL[n.session_id];
     }
-  }
+  })
 }
-
 
 
 app.get("/d/:id.rtc",auth((function(user_id,req,res) {
@@ -156,12 +155,12 @@ app.get("/d/:id.rtc",auth((function(user_id,req,res) {
     res.json(reply);
     announce(user);
   } else {
-    console.log("SETUP LONGPOLL FOR ",session_id);
     if (should_reply(user)) {
       let reply = gen_reply(user);
       console.log("NO LONGPOLL",reply);
       res.json(reply);
     } else {
+      console.log("SETUP LONGPOLL FOR ",session_id);
       longpoll_handler(session_id, function() {
         let reply = gen_reply(user);
         console.log("LONGPOLL",reply);

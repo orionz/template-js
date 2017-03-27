@@ -26,10 +26,11 @@ webrtc.ondepart = function() {
   terminal.log("peer departed...")
 }
 
-webrtc.onusergram = function() {
-  terminal.log("peer usergram...")
+webrtc.onusergram = function(from, msg) {
+  terminal.log("message:" + from + ": " + JSON.stringify(msg))
 }
 
-webrtc.onupdate = function() {
-  terminal.log("peer update...")
+webrtc.ondatachannel = function(m) {
+  terminal.log("webrtc data channel open")
+  webrtc.broadcast({ hello: "world" })
 }

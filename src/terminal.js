@@ -12,7 +12,7 @@ class Terminal extends React.Component {
   }
 
   render() {
-    return (<pre className="foo">{this.state.content.join("\n")}</pre>);
+    return (<pre className="foo">{this.state.content.slice(-20).join("\n")}</pre>);
   }
 }
 

@@ -50,7 +50,8 @@ function create_webrtc() {
     self.data_channel = event.channel
     self.data_channel.onmessage = msg => self.process_usergram(JSON.parse(msg.data))
     self.update_state()
-    Exports.onupdate()
+    Exports.onupdate("webrtc data channel opened by peer")
+    Exports.ondatachannel()
   }
   self.webrtc = webrtc
 }
@@ -110,12 +111,14 @@ function update_state() {
   if (self.last_user != self.session_record.user) {
     self.last_user = self.session_record.user
     self.last_user_obj = parse(self.session_record.user)
-    Exports.onupdate(self)
+    //Exports.onupdate(self)
+    //Exports.onupdate("something updated ?") // FIXME
   }
   if (self.last_state != self.session_record.state) {
     self.last_state = self.session_record.state
     self.last_state_obj = parse(self.session_record.state)
-    Exports.onupdate(self)
+    //Exports.onupdate(self)
+    //Exports.onupdate("something else updated ?") // FIXME
   }
 }
 
@@ -183,7 +186,8 @@ function offer() {
     console.log("data channel open")
     self.data_channel = data
     self.update_state()
-    Exports.onupdate()
+    Exports.onupdate("opened webrtc data channel")
+    Exports.ondatachannel()
   }
   self.webrtc.createOffer(desc => {
     self.webrtc.setLocalDescription(desc,
@@ -394,7 +398,7 @@ function delSessionVar(key) {
 function setSessionVar(key,val) {
   if (Exports.state[key] !== val) {
     Exports.state[key] = val
-    Exports.onupdate()
+    Exports.onupdate("set session var")
     put({ session_id: SessionID, state: JSON.stringify(Exports.state)})
   }
 }
@@ -402,7 +406,7 @@ function setSessionVar(key,val) {
 function setUserVar(key,val) {
   if (Exports.user[key] !== val) {
     Exports.user[key] = val
-    Exports.onupdate()
+    Exports.onupdate("set user var")
     put({ session_id: SessionID, user: JSON.stringify(Exports.user) })
   }
 }
@@ -415,6 +419,7 @@ var Exports = {
   ondepart:      () => {},
   onusergram:    () => {},
   onupdate:      () => { console.log("DEFAULT ONUPDATE") },
+  ondatachannel: () => {},
   state:         {},
   user:          {},
   setSessionVar: setSessionVar,
