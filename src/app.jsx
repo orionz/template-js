@@ -15,15 +15,15 @@ let terminal  = ReactDOM.render(<Terminal content={content} />, mount);
 terminal.log("terminal online");
 
 webrtc.join("/d/default.rtc", () => {
-  terminal.log("webrtc joined...")
+  terminal.log("webrtc meeting point joined...")
 });
 
 webrtc.onarrive = function() {
-  terminal.log("peer arrived...")
+  //terminal.log("peer arrived...")
 }
 
 webrtc.ondepart = function() {
-  terminal.log("peer departed...")
+  //terminal.log("peer departed...")
 }
 
 webrtc.onusergram = function(from, msg) {
