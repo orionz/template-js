@@ -7,6 +7,7 @@ class Terminal extends React.Component {
   }
 
   log(msg) {
+    console.log("LOG: " + msg);
     this.setState({...this.state, content: [...this.state.content, msg]})
   }
 
