@@ -6,16 +6,20 @@ let reducer     = require('./reducer');
 let webrtc      = require('./webrtc');
 let {Terminal}  = require('./terminal');
 
+global.w = webrtc
+
 //let Store = Redux.createStore(reducer);
 
 let content = ["react initializing..."];
 let mount = document.getElementById("mount");
 
 let terminal  = ReactDOM.render(<Terminal content={content} />, mount);
+
 terminal.log("terminal online");
 
 webrtc.join("/d/default.rtc", () => {
   terminal.log("webrtc meeting point joined...")
+  terminal.log("session: " + webrtc.id);
 });
 
 webrtc.onarrive = function() {

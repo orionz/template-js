@@ -50,7 +50,7 @@ function create_webrtc() {
     self.data_channel = event.channel
     self.data_channel.onmessage = msg => self.process_usergram(JSON.parse(msg.data))
     self.update_state()
-    Exports.onupdate("webrtc data channel opened by peer")
+//    Exports.onupdate("webrtc data channel opened by peer")
     Exports.ondatachannel()
   }
   self.webrtc = webrtc
@@ -108,6 +108,7 @@ function update_state() {
     self.last_connected = true
     Exports.ondepart(self)
   }
+/*
   if (self.last_user != self.session_record.user) {
     self.last_user = self.session_record.user
     self.last_user_obj = parse(self.session_record.user)
@@ -120,19 +121,30 @@ function update_state() {
     //Exports.onupdate(self)
     //Exports.onupdate("something else updated ?") // FIXME
   }
+*/
 }
 
 function send(obj) {
+  console.log("SEND");
   let self = this
+  let result = ""
   try {
-    if (self.data_channel)
+    if (self.data_channel) {
       self.data_channel.send(JSON.stringify(obj))
-    else
+      result = "sent_by_data_channel";
+    } else {
       self.send_usergram(obj)
+      result = "sent_through_server";
+    }
   } catch(e) {
     console.log("Error sending data - deleting data channel",e)
     delete self.data_channel
+
+    self.send_usergram(obj)
+    result = "sent_through_server";
   }
+  console.log("SEND2",result);
+  return result;
 }
 
 //  Terminology
@@ -142,7 +154,6 @@ function process(messages) {
   let self = this
   messages.forEach((messageJSON) => {
     var message = JSON.parse(messageJSON)
-    console.log("processing message",message)
     if (message.type == "signal") {
       self.process_signal(message.payload)
     } else if (message.type == "usergram") {
@@ -183,10 +194,8 @@ function offer() {
   data.onclose   = notice(self,"data:onclose")
   data.onerror   = notice(self,"data:error")
   data.onopen    = function(event) {
-    console.log("data channel open")
     self.data_channel = data
     self.update_state()
-    Exports.onupdate("opened webrtc data channel")
     Exports.ondatachannel()
   }
   self.webrtc.createOffer(desc => {
@@ -233,7 +242,6 @@ function Peer(session) {
 
 function process_usergram(usergram) {
   let self = this
-  console.log("GOT MESSAGE FROM ", self.id, "--" ,usergram)
   Exports.onusergram(self.id, usergram)
 }
 
@@ -300,8 +308,8 @@ function reset_state() {
   }
   Peers = {}
   SessionID = ""
-  Exports.user = {}
-  Exports.state = {}
+//  Exports.user = {}
+//  Exports.state = {}
 }
 
 function parse(data) {
@@ -314,13 +322,13 @@ function parse(data) {
 }
 
 function process_session_data_from_server(data, handler) {
-  //console.log(" ---- data from server", data)
   if (SessionID != data.session_id) {
     reset_state()
     SessionID = data.session_id
+    Exports.id = SessionID;
   }
 
-  Exports.user = parse(data.user)
+//  Exports.user = parse(data.user)
 
   if (handler) handler()
 
@@ -339,6 +347,8 @@ function process_session_data_from_server(data, handler) {
   for (let from in data.messages) {
     if (Peers[from]) Peers[from].process(data.messages[from])
   }
+
+  peer_change();
 }
 
 function get(handler) {
@@ -349,7 +359,7 @@ function get(handler) {
     success:     (data) => {
       process_session_data_from_server(data, handler)
       if (ServerError) {
-        console.log("Connected - clearing timer")
+        // console.log("Connected - clearing timer")
         ServerError = undefined
         clearTimeout(ServerErrorHandler)
       }
@@ -359,7 +369,7 @@ function get(handler) {
       console.log("Fail to get",URL,e)
       if (!ServerError) {
         ServerError = Date.now() + 5000
-        ServerErrorHandler = setTimeout(update_peers,5001)
+        ServerErrorHandler = setTimeout(update_peer_state,5001)
       }
       setTimeout(get,1000)
     },
@@ -367,6 +377,7 @@ function get(handler) {
 }
 
 // USER = 1E52AA
+/*
 function peers() { // CAUTION
   var peers = [ { session: SessionID, state: Exports.state, user: Exports.user, connected: true, senior: false, self: true }]
   for (let id in Peers) {
@@ -377,10 +388,22 @@ function peers() { // CAUTION
   }
   return peers
 }
+*/
 
-function update_peers() {
-  for (var k in Peers)
+function peer_change() {
+  console.log("Rebuilding peers list")
+  Exports.peers = []
+  for (var k in Peers) {
+    let p = Peers[k]
+    Exports.peers.push({ session: p.id, connected: p.data_channel != undefined, send: (obj) => { return p.send(obj) }}) 
+  }
+}
+
+function update_peer_state() {
+  for (var k in Peers) {
     Peers[k].update_state()
+  }
+  peer_change();
 }
 
 
@@ -390,6 +413,7 @@ function join(url, handler) {
   get(handler)
 }
 
+/*
 function delSessionVar(key) {
   delete Exports.state[key]
   put({ session_id: SessionID, state: JSON.stringify(Exports.state)})
@@ -410,21 +434,22 @@ function setUserVar(key,val) {
     put({ session_id: SessionID, user: JSON.stringify(Exports.user) })
   }
 }
+*/
 
 var Exports = {
   join:          join,
-  peers:         peers,
+  peers:         [],
   broadcast:     broadcast,
   onarrive:      () => {},
   ondepart:      () => {},
   onusergram:    () => {},
-  onupdate:      () => { console.log("DEFAULT ONUPDATE") },
+//  onupdate:      () => { console.log("DEFAULT ONUPDATE") },
   ondatachannel: () => {},
-  state:         {},
-  user:          {},
-  setSessionVar: setSessionVar,
-  delSessionVar: delSessionVar,
-  setUserVar:    setUserVar,
+//  state:         {},
+//  user:          {},
+//  setSessionVar: setSessionVar,
+//  delSessionVar: delSessionVar,
+//  setUserVar:    setUserVar,
 }
 
 module.exports = Exports
