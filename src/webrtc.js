@@ -253,6 +253,7 @@ function broadcast(usergram) {
 }
 
 function send_signal(payload) {
+  console.log("SEND-SIGNAL",payload)
   let self = this
   post_message(self.id, { type: "signal", payload: payload } )
 }
