@@ -6,6 +6,8 @@ let app = express();
 let bodyParser = require('body-parser');
 let sessionConfig = {
   secret: process.env.SESSION_SECRET || 'abc123',
+  resave: false,
+  saveUninitialized: true,
   cookie: {}
 }
 
