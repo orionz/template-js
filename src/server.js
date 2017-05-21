@@ -1,6 +1,4 @@
 
-require("babel-polyfill");
-
 let express = require('express');
 let morgan = require('morgan');
 let session = require('express-session')
@@ -8,8 +6,6 @@ let app = express();
 let bodyParser = require('body-parser');
 let sessionConfig = {
   secret: process.env.SESSION_SECRET || 'abc123',
-  resave: false,
-  saveUninitialized: true,
   cookie: {}
 }
 

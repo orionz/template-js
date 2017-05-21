@@ -7,9 +7,6 @@ var webpack = require('gulp-webpack');
 var plumber = require('gulp-plumber');
 var named = require('vinyl-named');
 
-require("babel-core/register");
-require("babel-polyfill");
-
 var SRC = "src/**/*";
 
 gulp.task("babel",function() {
@@ -23,7 +20,7 @@ gulp.task("build",["babel"],function() {
   return gulp.src("dist/client.js")
     .pipe(named())
     .pipe(plumber())
-    .pipe(webpack({ entry: ['babel-polyfill'] } ))
+    .pipe(webpack())
     .pipe(gulp.dest("public/js"));
 })
 
